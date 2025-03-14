@@ -1,5 +1,5 @@
+import 'package:acmhackthon/mess_count.dart';
 import 'package:flutter/material.dart';
-import 'mess_billing.dart';
 import 'mess_food.dart';
 class MessTab extends StatefulWidget {
   @override
@@ -22,13 +22,14 @@ class _BottomNavigationState extends State<MessTab>{
         index: _selectedIndex,
         children:[
           MessFood(),
-          MessBilling(),
+          MessCountScreen(),
+
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.check), label: 'MessFood'),
-          BottomNavigationBarItem(icon: Icon(Icons.report), label: 'MessBilling'),
+          BottomNavigationBarItem(icon: Icon(Icons.report), label: 'MessCount'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,

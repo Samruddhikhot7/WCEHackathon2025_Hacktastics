@@ -1,57 +1,63 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class NotifictionForStudent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Notification for Students'),
+      appBar: AppBar(
+        title: Text('Notifications for Students'),
         centerTitle: true,
         backgroundColor: Colors.purple,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              // Handle notification action
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection("notifications")
+            .orderBy("timestamp", descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text("No meal notifications yet."));
+          }
+
+          var notifications = snapshot.data!.docs;
+
+          return ListView.builder(
+            padding: EdgeInsets.all(12),
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              var notification = notifications[index];
+              var title = notification["title"];
+              var message = notification["message"];
+              var timestamp = notification["timestamp"] as Timestamp?;
+
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 6),
+                child: ListTile(
+                  title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple)),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(message),
+                      if (timestamp != null)
+                        Text(
+                          "Time: ${DateFormat('yyyy-MM-dd HH:mm').format(timestamp.toDate())}",
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                    ],
+                  ),
+                  leading: Icon(Icons.notifications_active, color: Colors.purple),
+                ),
+              );
             },
-          ),
-        ],
+          );
+        },
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
-              decoration: BoxDecoration(
-                color: Colors.purple,
-              ),
-            ),
-            ListTile(
-              title: Text('About Us'),
-              onTap: () {
-                // Handle About Us action
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Settings'),
-              onTap: () {
-                // Handle Log Out action
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Log Out'),
-              onTap: () {
-                // Handle Log Out action
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Center(child: Text('mess biling Page')),
     );
   }
 }

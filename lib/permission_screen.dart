@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import 'package:acmhackthon/profile_of_student.dart';
-
-import 'notifiction_for_student.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class PermissionScreen extends StatefulWidget {
   @override
@@ -10,245 +10,165 @@ class PermissionScreen extends StatefulWidget {
 }
 
 class _PermissionScreenState extends State<PermissionScreen> {
-  final TextEditingController _studentNameController = TextEditingController();
-  final TextEditingController _yearBranchController = TextEditingController();
-  final TextEditingController _rollNumberController = TextEditingController();
-  final TextEditingController _hostelNameController = TextEditingController();
-  final TextEditingController _roomNumberController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _parentsNumberController = TextEditingController();
-  final TextEditingController _reasonController = TextEditingController();
-  final TextEditingController _outDateController = TextEditingController();
-  final TextEditingController _inDateController = TextEditingController();
+  final TextEditingController reasonController = TextEditingController();
+  final TextEditingController hostelController = TextEditingController();
+  final TextEditingController roomController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController fromDateController = TextEditingController();
+  final TextEditingController toDateController = TextEditingController();
 
-  DateTime _outDate = DateTime.now();
-  DateTime _inDate = DateTime.now();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
-  // Date Picker for Out Date
-  Future<void> _selectOutDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _outDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      setState(() {
-        _outDate = picked;
-        _outDateController.text = DateFormat('yyyy-MM-dd').format(_outDate);
+  @override
+  void initState() {
+    super.initState();
+    _firebaseMessaging.requestPermission();
+  }
+
+  Future<void> _submitPermissionRequest() async {
+    String fromDateText = fromDateController.text.trim();
+    String toDateText = toDateController.text.trim();
+
+    if (reasonController.text.isEmpty ||
+        hostelController.text.isEmpty ||
+        roomController.text.isEmpty ||
+        addressController.text.isEmpty ||
+        fromDateText.isEmpty ||
+        toDateText.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Please fill all fields with valid dates (dd-MM-yyyy)"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      await FirebaseFirestore.instance.collection("permissions").add({
+        "studentId": user.uid,
+        "studentName": user.displayName ?? "Unknown",
+        "hostelName": hostelController.text.trim(),
+        "roomNo": roomController.text.trim(),
+        "address": addressController.text.trim(),
+        "reason": reasonController.text.trim(),
+        "fromDate": fromDateText,
+        "toDate": toDateText,
+        "status": "Pending",
+        "timestamp": FieldValue.serverTimestamp(),
       });
+
+      await _sendNotificationToHostel(user.displayName ?? "A student");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Permission request submitted!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      setState(() {
+        reasonController.clear();
+        hostelController.clear();
+        roomController.clear();
+        addressController.clear();
+        fromDateController.clear();
+        toDateController.clear();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to submit request"), backgroundColor: Colors.red),
+      );
     }
   }
 
-  // Date Picker for In Date
-  Future<void> _selectInDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _inDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      setState(() {
-        _inDate = picked;
-        _inDateController.text = DateFormat('yyyy-MM-dd').format(_inDate);
+  Future<void> _sendNotificationToHostel(String studentName) async {
+    try {
+      await FirebaseFirestore.instance.collection("notifications").add({
+        "title": "New Permission Request",
+        "message": "$studentName has requested hostel leave.",
+        "timestamp": FieldValue.serverTimestamp(),
       });
+
+      await _firebaseMessaging.subscribeToTopic("hostel_notifications");
+    } catch (e) {
+      print("Error sending notification: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Permission Request'),
+        title: Text("Request Permission"),
         backgroundColor: Colors.purple,
         centerTitle: true,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotifictionForStudent()),
-              );
-              // Handle notification action
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileOfStudent()),
-              );// Handle profile action
-            },
-          ),
-        ],
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
-              decoration: BoxDecoration(
-                color: Colors.purple,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            _buildTextField(hostelController, "Hostel Name"),
+            _buildTextField(roomController, "Room Number"),
+            _buildTextField(addressController, "Address"),
+            _buildTextField(reasonController, "Reason"),
+            SizedBox(height: 10),
+
+            _buildManualDateField(fromDateController, "From Date (dd-MM-yyyy)"),
+            SizedBox(height: 10),
+            _buildManualDateField(toDateController, "To Date (dd-MM-yyyy)"),
+
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _submitPermissionRequest,
+              child: Text("Submit Request", style: TextStyle(fontSize: 16)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple,
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-            ),
-            ListTile(
-              title: Text('About Us'),
-              onTap: () {
-                // Handle About Us action
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Settings'),
-              onTap: () {
-                // Handle Log Out action
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Log Out'),
-              onTap: () {
-                // Handle Log Out action
-                Navigator.pop(context);
-              },
             ),
           ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildTextField('Student Name', _studentNameController),
-              buildTextField('Year & Branch', _yearBranchController),
-              buildTextField('Roll Number', _rollNumberController),
-              buildTextField('Hostel Name', _hostelNameController),
-              buildTextField('Room Number', _roomNumberController),
-              buildTextField('Phone Number', _phoneNumberController, keyboardType: TextInputType.phone),
-              buildTextField('Parent\'s Phone Number', _parentsNumberController, keyboardType: TextInputType.phone),
-              buildTextField('Address', _addressController, maxLines: 3),
-              buildTextField('Reason for Permission', _reasonController, maxLines: 3),
+    );
+  }
 
-              // Out Date
-              buildDateField('Out Date', _outDateController, () => _selectOutDate(context)),
-
-              // In Date
-              buildDateField('In Date', _inDateController, () => _selectInDate(context)),
-
-              SizedBox(height: 20),
-
-              // Submit Button
-              Center(
-                child: ElevatedButton(
-                  onPressed: _handleSubmit,
-                  child: Text('Submit'),
-                ),
-              ),
-            ],
-          ),
+  Widget _buildTextField(TextEditingController controller, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          filled: true,
+          fillColor: Colors.purple.shade50,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
         ),
       ),
     );
   }
 
-  Widget buildTextField(String label, TextEditingController controller, {TextInputType keyboardType = TextInputType.text, int maxLines = 1}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(fontSize: 18, color: Colors.purple)),
-        TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          decoration: InputDecoration(hintText: 'Enter $label'),
+  Widget _buildManualDateField(TextEditingController controller, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.datetime,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: "dd-MM-yyyy",
+          filled: true,
+          fillColor: Colors.purple.shade50,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
         ),
-        SizedBox(height: 20),
-      ],
+      ),
     );
-  }
-
-  Widget buildDateField(String label, TextEditingController controller, VoidCallback onTap) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: TextStyle(fontSize: 18, color: Colors.purple)),
-        TextFormField(
-          controller: controller,
-          readOnly: true,
-          onTap: onTap,
-          decoration: InputDecoration(
-            hintText: 'Pick $label',
-            suffixIcon: Icon(Icons.calendar_today, color: Colors.purple),
-          ),
-        ),
-        SizedBox(height: 20),
-      ],
-    );
-  }
-
-  void _handleSubmit() {
-    if (_studentNameController.text.isNotEmpty &&
-        _yearBranchController.text.isNotEmpty &&
-        _rollNumberController.text.isNotEmpty &&
-        _hostelNameController.text.isNotEmpty &&
-        _roomNumberController.text.isNotEmpty &&
-        _phoneNumberController.text.isNotEmpty &&
-        _parentsNumberController.text.isNotEmpty &&
-        _addressController.text.isNotEmpty &&
-        _reasonController.text.isNotEmpty &&
-        _outDateController.text.isNotEmpty &&
-        _inDateController.text.isNotEmpty) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Permission Submitted'),
-            content: Text(
-              'Student Name: ${_studentNameController.text}\n'
-                  'Year & Branch: ${_yearBranchController.text}\n'
-                  'Roll Number: ${_rollNumberController.text}\n'
-                  'Hostel Name: ${_hostelNameController.text}\n'
-                  'Room Number: ${_roomNumberController.text}\n'
-                  'Phone Number: ${_phoneNumberController.text}\n'
-                  'Parent\'s Phone Number: ${_parentsNumberController.text}\n'
-                  'Address: ${_addressController.text}\n'
-                  'Reason: ${_reasonController.text}\n'
-                  'Out Date: ${_outDateController.text}\n'
-                  'In Date: ${_inDateController.text}',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Please fill out all fields.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    }
   }
 }

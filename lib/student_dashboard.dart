@@ -29,7 +29,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
           FoodMenuScreen(),
           PermissionScreen(),
           ComplaintScreen(),
-          BillingScreen(),
+          BillingScreen(amount: 50.75),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

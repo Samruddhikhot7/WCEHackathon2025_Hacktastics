@@ -1,148 +1,65 @@
-// breakfast_lunch_dinner_screen.dart
 import 'package:flutter/material.dart';
-import 'package:acmhackthon/profile_of_student.dart';
-
-import 'notifiction_for_student.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FoodMenuScreen extends StatefulWidget {
   @override
-  _BreakfastLunchDinnerScreenState createState() =>
-      _BreakfastLunchDinnerScreenState();
+  _FoodMenuScreenState createState() => _FoodMenuScreenState();
 }
 
-class _BreakfastLunchDinnerScreenState extends State<FoodMenuScreen> {
-  bool breakfast = false; // Default is "No"
-  bool lunch = false; // Default is "No"
-  bool dinner = false; // Default is "No"
+class _FoodMenuScreenState extends State<FoodMenuScreen> {
+  bool breakfast = false;
+  bool lunch = false;
+  bool dinner = false;
+
+  void _submitMealSelection() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid; // Get logged-in student ID
+
+    await FirebaseFirestore.instance.collection('mealSelections').doc(userId).set({
+      'breakfast': breakfast,
+      'lunch': lunch,
+      'dinner': dinner,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Meal selection submitted!"),
+        backgroundColor: Colors.purple,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Meal Selection for Tomorrow'),centerTitle: true,
+        title: Text('Meal Selection', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        centerTitle: true,
         backgroundColor: Colors.purple,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotifictionForStudent()),
-              );
-              // Handle notification action
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileOfStudent()),
-              );// Handle profile action
-            },
-          ),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
-              decoration: BoxDecoration(
-                color: Colors.purple,
-              ),
-            ),
-            ListTile(
-              title: Text('About Us'),
-              onTap: () {
-                // Handle About Us action
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Settings'),
-              onTap: () {
-                // Handle Log Out action
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Log Out'),
-              onTap: () {
-                // Handle Log Out action
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
+        elevation: 4,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Select your meal',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            SizedBox(height: 20),
-            MealSelection(
-              mealName: 'Breakfast',
-              value: breakfast,
-              onChanged: (value) {
-                setState(() {
-                  breakfast = value!;
-                });
-              },
-            ),
-            MealSelection(
-              mealName: 'Lunch',
-              value: lunch,
-              onChanged: (value) {
-                setState(() {
-                  lunch = value!;
-                });
-              },
-            ),
-            MealSelection(
-              mealName: 'Dinner',
-              value: dinner,
-              onChanged: (value) {
-                setState(() {
-                  dinner = value!;
-                });
-              },
-            ),
-            SizedBox(height: 40),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Selection Summary'),
-                      content: Text(
-                        'Breakfast: ${breakfast ? "Yes" : "No"}\n'
-                            'Lunch: ${lunch ? "Yes" : "No"}\n'
-                            'Dinner: ${dinner ? "Yes" : "No"}',
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('OK'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: Text('Submit'),
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.purple),
-                  foregroundColor: MaterialStateProperty.all(Colors.black),
-                ),
+            MealSelection(mealName: 'Breakfast', value: breakfast, onChanged: (val) => setState(() => breakfast = val!)),
+            SizedBox(height: 15),
+            MealSelection(mealName: 'Lunch', value: lunch, onChanged: (val) => setState(() => lunch = val!)),
+            SizedBox(height: 15),
+            MealSelection(mealName: 'Dinner', value: dinner, onChanged: (val) => setState(() => dinner = val!)),
+            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: _submitMealSelection,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               ),
+              child: Text('Submit', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -156,34 +73,32 @@ class MealSelection extends StatelessWidget {
   final bool value;
   final ValueChanged<bool?> onChanged;
 
-  MealSelection({
-    required this.mealName,
-    required this.value,
-    required this.onChanged,
-  });
+  MealSelection({required this.mealName, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          mealName,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        Row(
+    return Card(
+      color: Colors.purple.shade50,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 3,
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('No'),
+            Text(
+              mealName,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.purple.shade900),
+            ),
             Switch(
               value: value,
               onChanged: onChanged,
-              activeColor: Colors.purple,
+              activeColor: Colors.white,
+              activeTrackColor: Colors.purple,
             ),
-            Text('Yes'),
           ],
         ),
-      ],
+      ),
     );
   }
 }
-
