@@ -52,6 +52,6 @@ class NotificationForMess extends StatelessWidget {
         ),
       ),
       body: Center(child: Text('mess biling Page')),
-    );
-  }
+);
+}
 }

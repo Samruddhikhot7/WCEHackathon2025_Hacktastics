@@ -58,6 +58,6 @@ class HostelComplaint extends StatelessWidget {
         ),
       ),
       body: Center(child: Text('Complaint Page')),
-    );
-  }
+);
+}
 }

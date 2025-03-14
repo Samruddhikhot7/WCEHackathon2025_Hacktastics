@@ -68,6 +68,6 @@ class BillingScreen extends StatelessWidget {
         ),
       ),
       body: Center(child: Text('Billing Page')),
-    );
-  }
+);
+}
 }
