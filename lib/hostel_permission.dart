@@ -22,7 +22,7 @@ class HostelPermission extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Permission Requests',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         centerTitle: true,
         backgroundColor: Colors.purple.shade700,

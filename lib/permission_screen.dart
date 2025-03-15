@@ -104,8 +104,8 @@ class _PermissionScreenState extends State<PermissionScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Request Permission"),
-        backgroundColor: Colors.purple,
+        title: Text("Request Permission",style: TextStyle(color: Colors.white),),
+        backgroundColor: Colors.purple.shade700,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -125,9 +125,9 @@ class _PermissionScreenState extends State<PermissionScreen> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _submitPermissionRequest,
-              child: Text("Submit Request", style: TextStyle(fontSize: 16)),
+              child: Text("Submit Request", style: TextStyle(fontSize: 16,color: Colors.white)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
+                backgroundColor: Colors.purple.shade700,
                 padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),

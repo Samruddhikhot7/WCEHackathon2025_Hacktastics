@@ -9,10 +9,10 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'NestEase',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold,color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: Color(0xFF370740),
+        backgroundColor: Colors.purple.shade700,
         elevation: 6,
         shadowColor: Colors.black26,
         actions: [

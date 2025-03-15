@@ -92,9 +92,9 @@ class _MessFoodState extends State<MessFood> {
     return Scaffold(
       backgroundColor: Colors.purple.shade50,
       appBar: AppBar(
-        title: Text('Mess Food'),
+        title: Text('Mess Food',style: TextStyle(color: Colors.white)),
         centerTitle: true,
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.purple.shade700,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -126,7 +126,7 @@ class _MessFoodState extends State<MessFood> {
                   onPressed: _submitMeal,
                   child: Text('Submit'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.purple,
+                    backgroundColor: Colors.purple.shade700,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),

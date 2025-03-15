@@ -90,9 +90,9 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('🏠 Hostel Complaint Form'),
+        title: Text('🏠 Hostel Complaint Form',style: TextStyle(color: Colors.white),),
         centerTitle: true,
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.purple.shade700,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -149,7 +149,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
 
                 ElevatedButton(
                   onPressed: submitComplaint,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.purple.shade700, padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12)),
                   child: Text("Submit Complaint", style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
               ],

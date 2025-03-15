@@ -12,29 +12,11 @@ class BillingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Billing'),
+        title: const Text('Billing',style: TextStyle(color: Colors.white),),
         centerTitle: true,
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.purple.shade700,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotifictionForStudent()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileOfStudent()),
-              );
-            },
-          ),
         ],
       ),
       drawer: Drawer(
@@ -115,7 +97,7 @@ class BillingScreen extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.purple,
+                      backgroundColor: Colors.purple.shade700,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),

@@ -45,7 +45,7 @@ class _MessCountScreenState extends State<MessCountScreen> {
       appBar: AppBar(
         title: Text('Mess Count', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.purple.shade700,
         elevation: 4,
       ),
       body: isLoading

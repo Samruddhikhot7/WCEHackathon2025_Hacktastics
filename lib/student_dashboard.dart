@@ -41,9 +41,12 @@ class _BottomNavigationState extends State<BottomNavigation> {
           BottomNavigationBarItem(icon: Icon(Icons.attach_money), label: 'Billing'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Colors.white, // White color for selected icon & text
+        unselectedItemColor: Colors.purple.shade200, // Light purple for unselected items
+        backgroundColor: Colors.purple.shade700, // Dark purple background
         onTap: _onItemTapped,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold), // Bold selected text
+        type: BottomNavigationBarType.fixed, // Ensures all labels are visible
       ),
     );
   }

@@ -21,13 +21,13 @@ class HostelComplaint extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Complaint'),
+        title: Text('Complaint',style: TextStyle(color: Colors.white),),
         centerTitle: true,
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.purple.shade700,
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.notifications),
+            icon: Icon(Icons.notifications,color: Colors.white),
             onPressed: () {
               Navigator.push(
                 context,

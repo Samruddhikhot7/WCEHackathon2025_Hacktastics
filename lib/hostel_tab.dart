@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'hostel_complaint.dart';
 import 'hostel_permission.dart';
+
 class HostelTab extends StatefulWidget {
   @override
   _BottomNavigationState createState() => _BottomNavigationState();
 }
 
-class _BottomNavigationState extends State<HostelTab>{
+class _BottomNavigationState extends State<HostelTab> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -20,7 +21,7 @@ class _BottomNavigationState extends State<HostelTab>{
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
-        children:[
+        children: [
           HostelPermission(),
           HostelComplaint(),
         ],
@@ -31,9 +32,11 @@ class _BottomNavigationState extends State<HostelTab>{
           BottomNavigationBarItem(icon: Icon(Icons.report), label: 'Complaint'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Colors.white, // White color for selected icon & text
+        unselectedItemColor: Colors.purple.shade200, // Light purple for unselected
+        backgroundColor: Colors.purple.shade700, // Dark purple background
         onTap: _onItemTapped,
+        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold), // Bold selected text
       ),
     );
   }

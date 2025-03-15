@@ -25,7 +25,7 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Meal selection submitted!"),
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.purple.shade700,
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -38,7 +38,7 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
       appBar: AppBar(
         title: Text('Meal Selection', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.purple.shade700,
         elevation: 4,
       ),
       body: Padding(
@@ -54,7 +54,7 @@ class _FoodMenuScreenState extends State<FoodMenuScreen> {
             ElevatedButton(
               onPressed: _submitMealSelection,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
+                backgroundColor: Colors.purple.shade700,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(vertical: 12, horizontal: 30),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
